@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Atlas.Domain;
 using Atlas.Infrastructure.Audit;
 using Atlas.Infrastructure.Persistence;
+using Atlas.Infrastructure.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,14 +27,16 @@ public static class BackofficeEndpoints
 
     public static void MapBackofficeEndpoints(this IEndpointRouteBuilder app)
     {
-        var review = app.MapGroup("/review").RequireAuthorization(StaffRoles.ComplianceOfficer);
+        var review = app.MapGroup("/review").RequireAuthorization(StaffRoles.ComplianceOfficer)
+            .AddEndpointFilter<DomainRuleViolationFilter>();
         review.MapGet("/queue", Queue);
         review.MapGet("/applications/{applicationId}", ReviewDetail);
         review.MapGet("/applications/{applicationId}/documents/{documentType}", Document);
         review.MapPost("/applications/{applicationId}/decision", Decide);
         review.MapGet("/applications/{applicationId}/audit", AuditTrail);
 
-        var branch = app.MapGroup("/branch").RequireAuthorization(StaffRoles.BranchStaff);
+        var branch = app.MapGroup("/branch").RequireAuthorization(StaffRoles.BranchStaff)
+            .AddEndpointFilter<DomainRuleViolationFilter>();
         branch.MapGet("/applications/{applicationId}", BranchDetail);
         branch.MapPost("/applications/{applicationId}/activate", Activate);
     }

@@ -15,7 +15,6 @@ builder.Services.AddOptions<OnboardingOptions>().BindConfiguration("Onboarding")
 builder.Services.AddSingleton<AccessTokens>();
 builder.Services.AddSingleton<DecisionWaiter>();
 builder.Services.AddProblemDetails();
-builder.Services.AddExceptionHandler<DomainRuleViolationHandler>();
 builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
 

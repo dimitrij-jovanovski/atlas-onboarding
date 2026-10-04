@@ -16,7 +16,6 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(StaffRoles.BranchStaff, p => p.RequireRole(StaffRoles.BranchStaff).RequireClaim(StaffRoles.MarketClaim));
 
 builder.Services.AddProblemDetails();
-builder.Services.AddExceptionHandler<DomainRuleViolationHandler>();
 
 var app = builder.Build();
 

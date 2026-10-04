@@ -3,6 +3,7 @@ using System.Text;
 using Atlas.Domain;
 using Atlas.Infrastructure.Audit;
 using Atlas.Infrastructure.Persistence;
+using Atlas.Infrastructure.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -54,7 +55,7 @@ public static class ApplicationEndpoints
 {
     public static void MapApplicationEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/applications");
+        var group = app.MapGroup("/applications").AddEndpointFilter<DomainRuleViolationFilter>();
         group.MapPost("/", Create);
         group.MapPut("/{applicationId}/documents/{documentType}", UploadDocument);
         group.MapPost("/{applicationId}/submit", Submit);

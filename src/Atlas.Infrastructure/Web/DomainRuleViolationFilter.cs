@@ -1,24 +1,29 @@
 using Atlas.Domain;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 
 namespace Atlas.Infrastructure.Web;
 
-/// <summary>Maps broken business rules to 409 (wrong state) or 422 (request can never succeed as sent).</summary>
-public sealed class DomainRuleViolationHandler(IProblemDetailsService problems) : IExceptionHandler
+/// <summary>
+/// Turns a broken business rule into 409 (wrong state) or 422 (request can never succeed as sent).
+///
+/// An endpoint filter rather than an IExceptionHandler: in .NET 8 the exception-handler middleware
+/// logs every exception as an unhandled error before handing it over, which would put ordinary
+/// customer mistakes ("selfie missing") in the error log next to real failures.
+/// </summary>
+public sealed class DomainRuleViolationFilter : IEndpointFilter
 {
-    public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken ct)
+    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        if (exception is not DomainRuleViolation violation) return false;
-
-        context.Response.StatusCode = violation.Code is "invalid_state" or "not_draft"
-            ? StatusCodes.Status409Conflict
-            : StatusCodes.Status422UnprocessableEntity;
-
-        return await problems.TryWriteAsync(new ProblemDetailsContext
+        try
         {
-            HttpContext = context,
-            ProblemDetails = { Title = violation.Message, Type = violation.Code, Status = context.Response.StatusCode },
-        });
+            return await next(context);
+        }
+        catch (DomainRuleViolation violation)
+        {
+            var status = violation.Code is "invalid_state" or "not_draft"
+                ? StatusCodes.Status409Conflict
+                : StatusCodes.Status422UnprocessableEntity;
+            return Results.Problem(title: violation.Message, type: violation.Code, statusCode: status);
+        }
     }
 }
