@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 // Outcomes are driven by the applicant's last name so every path can be exercised by hand:
 //   contains "forged"  -> IDNow rejects the document
 //   contains "match"   -> World-Check returns POSSIBLE_MATCH (application goes to manual review)
-//   contains "flaky"   -> each provider returns 503 for the first 2 calls per application, then answers
+//   contains "flaky"   -> each provider returns 503 on its first call per application, then answers
 //   anything else      -> VERIFIED / CLEAR
 // Plus global knobs in appsettings: FakeProviders:LatencyMs and FakeProviders:FailureRate (0..1).
 
@@ -25,7 +25,7 @@ async Task<IResult?> Chaos(string provider, string? reference, string? lastName)
     if (Contains(lastName, "flaky"))
     {
         var n = callCounts.AddOrUpdate($"{provider}:{reference}", 1, (_, c) => c + 1);
-        if (n <= 2) return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+        if (n <= 1) return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
     }
     return null;
 }
