@@ -1,0 +1,47 @@
+# Atlas — local infrastructure.
+#
+# This is infrastructure only: a database and a log sink.
+# There are no application services defined here, and that is deliberate —
+# what services exist, and how many, is yours to decide.
+#
+# Use it, extend it, replace it, or ignore it entirely.
+#
+#   docker compose up -d
+#
+# Host ports are overridable, because 1433 is very often already taken:
+#   SQL_PORT=14330 docker compose up -d
+#
+# Need a broker, a cache or blob storage? See the allowed-images list in the
+# task statement and add it here yourself.
+
+services:
+
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Local_Dev_Password_1"
+      MSSQL_PID: "Developer"
+    ports:
+      - "${SQL_PORT:-1433}:1433"
+    volumes:
+      - sql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  seq:
+    image: datalust/seq:latest
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "${SEQ_PORT:-5341}:80"
+    volumes:
+      - seq-data:/data
+
+volumes:
+  sql-data:
+  seq-data:

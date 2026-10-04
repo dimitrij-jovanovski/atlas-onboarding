@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Deliberately has no package references: the rules that compliance cares about
+       live here and can be read and tested without a database, a web host or a provider. -->
+</Project>

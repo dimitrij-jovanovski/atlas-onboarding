@@ -1,0 +1,51 @@
+{
+  // Source: GC-2026-0814 Annex B (positions current as at March 2026).
+  // Every market difference lives here. Adding a market = adding an entry with "enabled": false,
+  // and enabling it only once Compliance has reissued the annex (Annex B, note 3).
+  "markets": [
+    {
+      "code": "MA",
+      "enabled": true,
+      "activation": "Remote",
+      "acceptedIdentifiers": [ { "type": "PERSONAL_NUMBER", "format": "digits-13" } ]
+    },
+    {
+      "code": "MB",
+      "enabled": true,
+      "activation": "Remote",
+      "acceptedIdentifiers": [ { "type": "PERSONAL_NUMBER", "format": "digits-13" } ]
+    },
+    {
+      "code": "MC",
+      "enabled": true,
+      "activation": "Remote",
+      "acceptedIdentifiers": [ { "type": "UNIFIED_CITIZEN_ID", "format": "alnum-9-letter-last" } ]
+    },
+    {
+      // Remote identification for the application stage only; a wet signature in branch is required
+      // before activation. The 2024 exemption request is outstanding — no relief assumed (note 1).
+      "code": "MD",
+      "enabled": true,
+      "activation": "Branch",
+      "acceptedIdentifiers": [ { "type": "CITIZEN_NUMBER", "format": "digits-10" } ]
+    },
+    {
+      // Check-digit algorithm differs from MA/MB and is not specified — format only (see OPEN-QUESTIONS.md).
+      "code": "ME",
+      "enabled": true,
+      "activation": "Remote",
+      "acceptedIdentifiers": [ { "type": "CIVIL_NUMBER", "format": "digits-10" } ]
+    },
+    {
+      // Personal Number is not issued to non-citizen residents; passport number accepted in lieu.
+      // Annex B does not give the MF Personal Number format; 13 digits is an assumption (OPEN-QUESTIONS.md).
+      "code": "MF",
+      "enabled": true,
+      "activation": "Remote",
+      "acceptedIdentifiers": [
+        { "type": "PERSONAL_NUMBER", "format": "digits-13" },
+        { "type": "PASSPORT_NUMBER", "format": "passport" }
+      ]
+    }
+  ]
+}
