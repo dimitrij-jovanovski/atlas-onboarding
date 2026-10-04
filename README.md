@@ -20,6 +20,9 @@ cd platform && docker compose up -d && cd ..     # SQL Server + Seq, unchanged f
 dotnet test                                      # no Docker needed — tests use SQLite
 ```
 
+CI (`.github/workflows/ci.yml`) runs the tests, then starts everything against the same SQL Server
+image and runs the demo script, checking that every path ends in the expected status.
+
 `run` builds the solution and starts four processes; Ctrl+C stops them all. The Onboarding API creates
 one database per market (`Atlas_MA` … `Atlas_MF`) on first start. Logs go to the console and to Seq at
 http://localhost:5341.
@@ -119,5 +122,7 @@ match, `Forged` → document rejected, `Flaky` → each provider fails once with
 * **The worker processes one job at a time per replica.** Throughput would need parallelism per market.
 * **A provider that never recovers keeps an application `IN_PROGRESS` forever**, retried every 5 minutes
   and logged as an error after 5 attempts. There is no ops view for stuck jobs yet.
+* **Denied access attempts are not logged.** An MA officer opening an MB application gets 403, but the
+  attempt itself isn't written to the access log; it should be.
 * **The idempotency fingerprint covers identity fields and document hashes**, so a retry that re-encodes
   a photo differently counts as a different request (returns 422 rather than silently reusing).

@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet test Atlas.sln
+
+  # The whole system against the same SQL Server image as /platform, driven by the demo script.
+  end-to-end:
+    runs-on: ubuntu-latest
+    services:
+      sql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "Local_Dev_Password_1"
+          MSSQL_PID: "Developer"
+        ports:
+          - 1433:1433
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Start services (SQL Server)
+        run: |
+          ./scripts/run.sh > services.log 2>&1 &
+          for port in 5100 5200 5300; do
+            for _ in $(seq 1 180); do curl -sf "http://localhost:$port/health" >/dev/null && break; sleep 1; done
+          done
+      - name: Run demo and check every path
+        run: |
+          ./scripts/demo.sh | tee demo.out
+          grep -q '"status": "APPROVED"' demo.out
+          grep -q '"status": "PENDING_REVIEW"' demo.out
+          grep -q '"status": "PENDING_BRANCH_VISIT"' demo.out
+          grep -q '"status": "REJECTED"' demo.out
+          grep -q 'HTTP 403' demo.out
+          grep -q '"action": "review.decision"' demo.out
+      - name: Service logs
+        if: always()
+        run: cat services.log
