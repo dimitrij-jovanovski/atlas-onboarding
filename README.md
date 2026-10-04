@@ -9,6 +9,16 @@ the questions I would put to Product and Compliance are in [`OPEN-QUESTIONS.md`]
 
 ---
 
+## How I used AI
+
+The brief invites AI assistance, so to be clear about it: I built this with Claude as a coding
+assistant. I read the material, worked through the contradictions and made the scoping and design
+calls (the ones in DECISIONS.md). I used Claude to write much of the code, tests and documentation
+quickly, then reviewed it, built and ran it locally, fixed what broke, and checked every path with
+the demo script and CI. I can walk through and defend any part of it.
+
+---
+
 ## Run it
 
 Requires the .NET 8 SDK. Services run on the host; infrastructure in Docker.
