@@ -18,7 +18,7 @@ pids=()
 cleanup() { kill "${pids[@]}" 2>/dev/null || true; }
 trap cleanup EXIT INT TERM
 
-start() { dotnet run --no-build --project "$ROOT/src/$1" & pids+=($!); }
+start() { dotnet run --no-build --no-launch-profile --project "$ROOT/src/$1" & pids+=($!); }
 
 start Atlas.FakeProviders
 start Atlas.Onboarding.Api   # owns the schema: creates the per-market databases on startup

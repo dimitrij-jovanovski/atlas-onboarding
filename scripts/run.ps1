@@ -16,7 +16,7 @@ dotnet build "$root/Atlas.sln" -v q -nologo
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 function Start-AtlasService([string]$name) {
-    Start-Process dotnet -ArgumentList @('run', '--no-build', '--project', "$root/src/$name") -NoNewWindow -PassThru
+    Start-Process dotnet -ArgumentList @('run', '--no-build', '--no-launch-profile', '--project', "$root/src/$name") -NoNewWindow -PassThru
 }
 
 $processes = @()
