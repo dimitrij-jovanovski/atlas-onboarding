@@ -51,12 +51,12 @@ public sealed class DevStaffAuthenticationHandler(
         var member = directory.Value.Staff.FirstOrDefault(s => string.Equals(s.Id, staffId, StringComparison.OrdinalIgnoreCase));
         if (member is null) return Task.FromResult(AuthenticateResult.Fail("Unknown staff member."));
 
-        var identity = new ClaimsIdentity(
-        [
+        var identity = new ClaimsIdentity(new[]
+        {
             new Claim(ClaimTypes.NameIdentifier, member.Id),
             new Claim(ClaimTypes.Role, member.Role),
             new Claim(StaffRoles.MarketClaim, member.Market.ToUpperInvariant()),
-        ], SchemeName);
+        }, SchemeName);
 
         return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(identity), SchemeName)));
     }
